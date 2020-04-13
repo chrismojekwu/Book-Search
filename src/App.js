@@ -1,26 +1,74 @@
 import React from 'react';
-import logo from './logo.svg';
+import Header from './Header/Header';
+import SearchBar from './Search/SearchBar'
+import SelectFilter from './Filter/Filter'
+import Booklist from './BookList/BookList'
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  state = {
+    searchTerm: "",
+    filter: "partial",
+    type: "all",
+    results:[]
+  }
+
+  updateSearchTerm = (term) => {
+    this.setState({
+      searchTerm: term
+    })
+  }
+
+  updateFilter = (filter) => {
+    this.setState({
+      filter: filter
+    })
+  }
+
+  updateType = (type) => {
+    this.setState({
+      type: type
+    })
+  }
+
+  getBooks = () => {
+    const key = "ow2gGQ1G_70hMHrtXkbHrZVYxvzZ4FE9BySazIA"  
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${this.state.searchTerm}&printType=${this.state.type}&filter=${this.state.filter}&key=${key.split("").reverse().join("")}`
+    
+
+    fetch(url)
+    .then(response => {
+      return response.json()
+    })
+    .then(data => {
+      this.setState({
+        results: data.items
+      })
+      console.log(data)
+    })
+    .catch(error => {
+      alert("there was an error")
+    })
+  }
+
+  render(){
+    return (
+      <>
+        <Header/>
+        <SearchBar
+        search={this.updateSearchTerm}
+        getBooks={this.getBooks}
+        />
+        <SelectFilter
+        filter={this.updateFilter}
+        type={this.updateType}
+        />
+        <Booklist
+        books={this.state.results}
+        />
+      </>
+    )
+  }
 }
 
 export default App;
